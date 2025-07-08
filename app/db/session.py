@@ -20,14 +20,14 @@ if db_url.startswith("sqlite"):
     # SQLite URL needs to be adjusted for asyncio
     db_url = db_url.replace("sqlite", "sqlite+aiosqlite", 1)
 
-# 创建异步引擎
+# 创建异步引擎 // 连接某种数据库
 engine = create_async_engine(
     db_url,
     echo=settings.DATABASE_ECHO,
     future=True,
 )
 
-# 创建会话工厂
+# 创建会话工厂//其实就是数据库连接池，绑定之前的引擎。会话是操作数据库的直接手段，每次访问数据库都应创建一个会话
 SessionLocal = async_sessionmaker(
     autocommit=False,
     autoflush=False,

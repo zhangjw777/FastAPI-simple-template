@@ -87,7 +87,7 @@
 1. **克隆项目模板**
 
 ```bash
-git clone https://github.com/yourusername/fastAPI-simple-template.git
+git clone https://github.com/zhangjw777/fastAPI-simple-template.git
 cd fastAPI-simple-template
 ```
 
@@ -336,15 +336,7 @@ alembic upgrade head
 本模板已集成JWT认证基础结构，使用方法:
 
 1. **获取令牌**:
-   - 使用`/api/v1/auth/token`端点登录并获取访问令牌
-
-2. **保护API端点**:
-```python
-from app.utils.auth import get_current_user
-
-@router.get("/protected")
-def protected_route(current_user = Depends(get_current_user)):
-    return {"message": "This is protected", "user": current_user}
+   - 使用`/api/v1/auth/login`端点登录并获取访问令牌
 ```
 
 ### 自定义中间件

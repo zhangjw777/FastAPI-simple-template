@@ -1,4 +1,5 @@
-from datetime import timedelta
+import logging
+from datetime import timedelta, datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,8 +15,8 @@ router = APIRouter()
 
 @router.post("/login", response_model=Token)
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db)
+        form_data: OAuth2PasswordRequestForm = Depends(),
+        db: AsyncSession = Depends(get_db)
 ):
     """
     登录获取访问令牌
@@ -35,11 +36,20 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     # 创建访问令牌
     access_token_expires = timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        subject=user["id"], expires_delta=access_token_expires
-    )
+    print("-------------------",user)
+    print(f"JWT过期时间设置(分钟): {settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES}")
+    print(f"计算的过期时间: {datetime.now() + access_token_expires}")
+    user_data_for_token = {
+        "username": user["username"],
+        "id": user["id"],
+        "email": user["email"],
+    }
     
-    return {"access_token": access_token, "token_type": "bearer"} 
+    access_token = create_access_token(
+        expires_delta=access_token_expires, user_info=user_data_for_token
+    )
+
+    return {"access_token": access_token, "token_type": "bearer"}

@@ -30,6 +30,7 @@ class UserService:
             email=user_in.email,
             username=user_in.username,
             hashed_password=hashed_password,
+            role=user_in.role,
         )
         
         # 转换为字典
@@ -38,7 +39,7 @@ class UserService:
             "email": user.email,
             "username": user.username,
             "is_active": user.is_active,
-            "is_superuser": user.is_superuser,
+            "role": user.role,
             "created_at": user.created_at,
             "updated_at": user.updated_at,
         }
@@ -57,7 +58,7 @@ class UserService:
             "email": user.email,
             "username": user.username,
             "is_active": user.is_active,
-            "is_superuser": user.is_superuser,
+            "role": user.role,
         }
     
     async def get_users(self, skip: int = 0, limit: int = 100) -> List[dict]:
@@ -69,7 +70,7 @@ class UserService:
                 "email": user.email,
                 "username": user.username,
                 "is_active": user.is_active,
-                "is_superuser": user.is_superuser,
+                "role": user.role,
                 "created_at": user.created_at,
                 "updated_at": user.updated_at,
             }
@@ -87,7 +88,7 @@ class UserService:
             "email": user.email,
             "username": user.username,
             "is_active": user.is_active,
-            "is_superuser": user.is_superuser,
+            "role": user.role,
             "created_at": user.created_at,
             "updated_at": user.updated_at,
         }
@@ -111,7 +112,7 @@ class UserService:
             "email": updated_user.email,
             "username": updated_user.username,
             "is_active": updated_user.is_active,
-            "is_superuser": updated_user.is_superuser,
+            "role": updated_user.role,
             "created_at": updated_user.created_at,
             "updated_at": updated_user.updated_at,
         }
@@ -127,7 +128,7 @@ class UserService:
             "email": user.email,
             "username": user.username,
             "is_active": user.is_active,
-            "is_superuser": user.is_superuser,
+            "role": user.role,
             "created_at": user.created_at,
             "updated_at": user.updated_at,
         } 
