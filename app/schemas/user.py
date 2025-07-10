@@ -36,7 +36,8 @@ class UserCreate(UserBase):
 
 class UserUpdate(UserBase):
     """用户更新模型"""
-
+    username: Optional[str] = Field(None, description="用户名")
+    email: Optional[EmailStr] = Field(None, description="用户邮箱")
     password: Optional[str] = Field(None, description="密码")
     role: Optional[Role] = Field(None, description="用户角色")
 

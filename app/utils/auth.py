@@ -14,7 +14,7 @@ from config import settings
 # OAuth2密码承载令牌
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-
+# oauth2_scheme会自动从请求头中获取Authorization字段，并去除前缀Bearer，获取token
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: AsyncSession = Depends(get_db)

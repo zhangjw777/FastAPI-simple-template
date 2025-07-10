@@ -9,11 +9,12 @@ from app.utils.auth import get_current_user
 
 router = APIRouter()
 
-
+# current_user: UserResponse = Depends(get_current_user) #可以用来鉴权，因为会自动调用get_current_user进而验证当前用户权限
 @router.post("", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
-    user_in: UserCreate,
-    db: AsyncSession = Depends(get_db)
+        user_in: UserCreate,
+        db: AsyncSession = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
 ):
     """
     创建新用户
@@ -25,10 +26,10 @@ async def create_user(
 
 @router.get("", response_model=List[UserResponse])
 async def get_users(
-    skip: int = 0,
-    limit: int = 100,
-    db: AsyncSession = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+        skip: int = 0,
+        limit: int = 100,
+        db: AsyncSession = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
 ):
     """
     获取用户列表
@@ -40,9 +41,9 @@ async def get_users(
 
 @router.get("/{user_id}", response_model=UserResponse)
 async def get_user(
-    user_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+        user_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
 ):
     """
     通过ID获取用户
@@ -56,10 +57,10 @@ async def get_user(
 
 @router.put("/{user_id}", response_model=UserResponse)
 async def update_user(
-    user_id: int,
-    user_in: UserUpdate,
-    db: AsyncSession = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+        user_id: int,
+        user_in: UserUpdate,
+        db: AsyncSession = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
 ):
     """
     更新用户信息
@@ -74,9 +75,9 @@ async def update_user(
 
 @router.delete("/{user_id}", response_model=UserResponse)
 async def delete_user(
-    user_id: int,
-    db: AsyncSession = Depends(get_db),
-    current_user: UserResponse = Depends(get_current_user)
+        user_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: UserResponse = Depends(get_current_user)
 ):
     """
     删除用户
@@ -86,4 +87,4 @@ async def delete_user(
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     user = await user_service.delete_user(user_id)
-    return user 
+    return user
