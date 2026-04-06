@@ -43,6 +43,8 @@ class UserService:
         user_data = await self.repository.get_by_username(username)
         if not user_data:
             return None
+        if not user_data.get("is_active", True):
+            return None
         if not verify_password(password, user_data["hashed_password"]):
             return None
         

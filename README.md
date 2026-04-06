@@ -321,19 +321,20 @@ alembic upgrade head
 
 ## 🔐 认证使用
 
-### 1. 注册用户（需要登录权限）
+### 1. 初始化管理员（仅首次，无需 Token）
 
 ```bash
 curl -X POST "http://localhost:8000/api/users" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
   -d '{
-    "email": "user@example.com",
-    "username": "testuser",
+    "email": "admin@example.com",
+    "username": "admin",
     "password": "password123",
     "role": "user"
   }'
 ```
+
+说明: 系统中无用户时，首次创建会被自动提升为 `admin`，后续创建用户需要管理员 Token。
 
 ### 2. 登录获取 Token
 
@@ -362,6 +363,12 @@ curl -X POST "http://localhost:8000/api/auth/login" \
 curl -X GET "http://localhost:8000/api/users/1" \
   -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..."
 ```
+
+### 4. 用户接口权限规则（简化版）
+
+- `GET /api/users` 仅管理员可访问
+- `GET/PUT/DELETE /api/users/{user_id}` 仅本人或管理员可访问
+- 非管理员更新用户时，不能修改 `role` 和 `is_active`
 
 ## 🗄️ 数据库管理
 
