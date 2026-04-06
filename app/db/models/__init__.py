@@ -1,6 +1,8 @@
 """SQLAlchemy数据库模型"""
 
-from app.db.models.user import User
-from app.db.models.item import Item
+"""
+数据库模型模块
 
-__all__ = ["User", "Item"] 
+注意：本项目使用 SQLAlchemy Core 和原生 SQL，不使用 ORM 模型
+表结构定义在 app/db/schema.sql
+"""

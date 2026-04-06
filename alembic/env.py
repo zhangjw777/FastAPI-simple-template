@@ -1,16 +1,14 @@
 import asyncio
 from logging.config import fileConfig
 
-from sqlalchemy import pool
+from sqlalchemy import pool, MetaData, Table, Column, Integer, String, Boolean, Float, DateTime, ForeignKey, Text
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-# 导入配置和模型
+# 导入配置
 from config import settings
-from app.db.session import Base
-from app.db.models import User, Item
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -28,11 +26,36 @@ if settings.DATABASE_URL.startswith("sqlite"):
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = Base.metadata
+# 创建 MetaData 对象用于表定义（不使用 ORM）
+# 手动定义表结构以支持 autogenerate
+target_metadata = MetaData()
+
+# 定义用户表
+users = Table(
+    'users',
+    target_metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('email', String(255), unique=True, nullable=False, index=True),
+    Column('username', String(255), unique=True, nullable=False, index=True),
+    Column('hashed_password', String(255), nullable=False),
+    Column('is_active', Boolean, default=True, nullable=False),
+    Column('role', String(50), default='user', nullable=False),
+    Column('created_at', DateTime, nullable=False),
+    Column('updated_at', DateTime, nullable=False),
+)
+
+# 定义物品表
+items = Table(
+    'items',
+    target_metadata,
+    Column('id', Integer, primary_key=True, autoincrement=True),
+    Column('title', String(100), nullable=False, index=True),
+    Column('description', Text, nullable=True),
+    Column('price', Float, nullable=True),
+    Column('owner_id', Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True),
+    Column('created_at', DateTime, nullable=False),
+    Column('updated_at', DateTime, nullable=False),
+)
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

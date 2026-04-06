@@ -1,73 +1,95 @@
-import os
+"""
+数据库连接管理模块 - 使用 SQLAlchemy Core
+支持原生 SQL 查询，不使用 ORM
+"""
 import logging
 from typing import AsyncGenerator
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
+from sqlalchemy import MetaData, text
 
 from config import settings
 
 # 获取数据库URL
 db_url = settings.DATABASE_URL
 
-# 提取SQLite数据库文件路径（如果使用的是SQLite）
-db_file_path = None
-if db_url.startswith("sqlite:///"):
-    # 从SQLite URL中提取文件路径
-    db_file_path = db_url.replace("sqlite:///", "")
-
-# 创建SQLite URL兼容性处理
+# SQLite URL 兼容性处理
 if db_url.startswith("sqlite"):
-    # SQLite URL needs to be adjusted for asyncio
     db_url = db_url.replace("sqlite", "sqlite+aiosqlite", 1)
 
-# 创建异步引擎 // 连接某种数据库
-engine = create_async_engine(
+# 创建异步引擎
+engine: AsyncEngine = create_async_engine(
     db_url,
     echo=settings.DATABASE_ECHO,
     future=True,
+    pool_pre_ping=True,  # 连接池预检
 )
 
-# 创建会话工厂//其实就是数据库连接池，绑定之前的引擎。会话是操作数据库的直接手段，每次访问数据库都应创建一个会话
-SessionLocal = async_sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine,
-    expire_on_commit=False,
-)
-
-# 创建Base类
-Base = declarative_base()
+# 创建 MetaData 对象用于表定义
+metadata = MetaData()
 
 
-async def init_db() -> None:
-    """初始化数据库，仅在数据库文件不存在时创建所有表"""
-    # 检查SQLite数据库文件是否存在
-    db_exists = False
-    if db_file_path and os.path.isfile(db_file_path):
-        db_exists = True
-        logging.info(f"发现现有数据库文件: {db_file_path}")
-    else:
-        logging.info(f"未找到数据库文件，将创建新的数据库: {db_file_path}")
-        
+async def get_db() -> AsyncGenerator[AsyncConnection, None]:
+    """
+    获取数据库连接的依赖函数
+    返回 AsyncConnection 而非 AsyncSession，用于执行原生 SQL
+    """
     async with engine.begin() as conn:
-        # 只在数据库文件不存在时创建表
-        if not db_exists:
-            # 创建所有表
-            await conn.run_sync(Base.metadata.create_all)
-            logging.info("创建了所有数据库表")
-        else:
-            logging.info("使用现有数据库，没有创建新表")
+        yield conn
+
+
+async def execute_sql(conn: AsyncConnection, sql: str, params: dict = None):
+    """
+    执行 SQL 查询的辅助函数
+    
+    Args:
+        conn: 数据库连接
+        sql: SQL 查询字符串
+        params: 查询参数（字典形式）
+    
+    Returns:
+        查询结果
+    """
+    result = await conn.execute(text(sql), params or {})
+    return result
+
+
+async def fetch_one(conn: AsyncConnection, sql: str, params: dict = None) -> dict | None:
+    """
+    执行查询并返回单条记录
+    
+    Args:
+        conn: 数据库连接
+        sql: SQL 查询字符串
+        params: 查询参数
+    
+    Returns:
+        单条记录（字典形式）或 None
+    """
+    result = await execute_sql(conn, sql, params)
+    row = result.first()
+    if row:
+        return dict(row._mapping)
+    return None
+
+
+async def fetch_all(conn: AsyncConnection, sql: str, params: dict = None) -> list[dict]:
+    """
+    执行查询并返回所有记录
+    
+    Args:
+        conn: 数据库连接
+        sql: SQL 查询字符串
+        params: 查询参数
+    
+    Returns:
+        记录列表（每条记录为字典）
+    """
+    result = await execute_sql(conn, sql, params)
+    rows = result.fetchall()
+    return [dict(row._mapping) for row in rows]
 
 
 async def close_db() -> None:
-    """关闭数据库连接"""
+    """关闭数据库连接池"""
     await engine.dispose()
-
-
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """获取数据库会话的依赖函数"""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        await db.close() 
+    logging.info("数据库连接池已关闭")

@@ -48,17 +48,33 @@ class UserUpdate(UserBase):
         return v
 
 
-class UserResponse(UserBase):
-    """用户响应模型"""
+class User(BaseModel):
+    """用户完整模型（用于 Service 层）"""
+    
+    id: int
+    email: str
+    username: str
+    hashed_password: str
+    is_active: bool
+    role: Role
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class UserResponse(BaseModel):
+    """用户响应模型（API 返回，不包含密码）"""
 
     id: int = Field(..., description="用户ID")
     email: EmailStr = Field(..., description="用户邮箱")
     username: str = Field(..., description="用户名")
+    is_active: bool = Field(..., description="是否激活")
     role: Role = Field(..., description="用户角色")
     created_at: datetime = Field(..., description="创建时间")
     updated_at: datetime = Field(..., description="更新时间")
 
     class Config:
         """配置"""
-
-        from_attributes = True 
+        from_attributes = True

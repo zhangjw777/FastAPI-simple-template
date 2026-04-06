@@ -1,490 +1,549 @@
-# FastAPI简易模板
+# FastAPI 简易模板
 
-一个基于FastAPI的起步项目模板，结构类似于SpringBoot项目，便于快速开发新应用。该模板采用分层架构设计，提供完整的项目结构和基础功能，帮助开发者快速构建高质量的Web API服务。
+一个基于 FastAPI 的起步项目模板，采用**分层架构设计**，使用 **SQLAlchemy Core + 原生 SQL**，便于快速开发高性能 Web API 服务。
 
-## 项目特性
+> 🎉 **最新更新**: 项目已重构为使用 SQLAlchemy Core + 原生 SQL，提供更直接的数据库控制和更好的性能。详见 [REFACTORING.md](./REFACTORING.md)
 
-- **分层架构设计**：控制器(API)-服务层-数据访问层的清晰分离
-- **集成SQLAlchemy ORM**：强大的ORM支持，简化数据库操作
-- **环境变量配置**：灵活的配置管理
-- **全局异常处理**：统一的错误响应
-- **日志系统**：完整的日志记录
-- **数据验证**：基于Pydantic的请求和响应验证
-- **身份认证基础结构**：JWT认证支持
-- **数据库迁移支持**：使用Alembic进行版本控制
-- **自动API文档**：基于OpenAPI的文档生成
-- **测试框架集成**：支持单元测试和集成测试
+## ✨ 项目特性
 
-## 详细项目结构
+- **🏗️ 分层架构**: API 层 → Service 层 → Repository 层的清晰分离
+- **💾 SQLAlchemy Core**: 使用原生 SQL 查询，不依赖 ORM
+- **📝 统一响应格式**: 标准化的 API 响应结构
+- **🔐 JWT 认证**: 完整的身份认证和授权支持
+- **📊 Alembic 迁移**: 专业的数据库版本管理
+- **✅ Pydantic 验证**: 强大的请求/响应数据验证
+- **🌐 多数据库支持**: PostgreSQL、MySQL、SQLite
+- **⚡ 异步操作**: 全异步设计，高性能
+- **📖 自动 API 文档**: OpenAPI (Swagger UI + ReDoc)
+- **🧪 测试框架**: pytest 支持
+- **🐳 Docker 支持**: 容器化部署
+- **📝 日志系统**: Loguru 日志管理
 
-```
-├── alembic/                # 数据库迁移相关文件
-│   ├── versions/           # 迁移版本目录
-│   ├── env.py              # Alembic环境配置
-│   └── script.py.mako      # 迁移脚本模板
-├── app/                    # 应用主目录
-│   ├── api/                # API路由模块
-│   │   ├── v1/             # API版本控制
-│   │   │   ├── endpoints/  # 各模块的API端点
-│   │   │   │   ├── auth.py         # 认证相关接口
-│   │   │   │   ├── health.py       # 健康检查接口
-│   │   │   │   ├── items.py        # 示例Item接口
-│   │   │   │   └── users.py        # 用户管理接口
-│   │   │   └── api.py      # API路由注册
-│   ├── core/               # 核心配置模块
-│   │   ├── application.py  # 应用实例创建
-│   │   └── events.py       # 应用生命周期事件
-│   ├── db/                 # 数据库相关
-│   │   ├── models/         # SQLAlchemy数据模型
-│   │   │   ├── base.py     # 基础模型类
-│   │   │   ├── item.py     # Item模型
-│   │   │   └── user.py     # 用户模型
-│   │   ├── repositories/   # 数据访问层
-│   │   │   ├── base.py     # 基础仓库类
-│   │   │   ├── item_repository.py  # Item仓库
-│   │   │   └── user_repository.py  # 用户仓库
-│   │   └── session.py      # 数据库会话管理
-│   ├── middlewares/        # 中间件
-│   │   └── exception_handler.py  # 异常处理中间件
-│   ├── schemas/            # Pydantic模型(数据验证)
-│   │   ├── health.py       # 健康检查模型
-│   │   ├── item.py         # Item相关模型
-│   │   ├── token.py        # 令牌模型
-│   │   └── user.py         # 用户相关模型
-│   ├── services/           # 业务逻辑层
-│   │   ├── item_service.py # Item服务
-│   │   └── user_service.py # 用户服务
-│   └── utils/              # 工具函数
-│       ├── auth.py         # 认证相关工具
-│       ├── logger.py       # 日志工具
-│       └── security.py     # 安全相关工具
-├── config/                 # 配置文件目录
-│   └── settings.py         # 应用配置设置
-├── tests/                  # 测试目录
-│   ├── test_api/           # API测试
-│   │   └── test_health.py  # 健康检查API测试
-│   └── conftest.py         # 测试配置
-├── .env.example            # 环境变量示例
-├── main.py                 # 应用入口
-├── run.py                  # 辅助运行脚本
-├── requirements.txt        # 项目依赖
-├── Dockerfile              # Docker构建文件
-└── docker-compose.yml      # Docker Compose配置
-```
+## 🚀 快速开始
 
-## 环境准备
+### 环境要求
 
-### 必要条件
+- Python 3.10+
+- 数据库 (PostgreSQL / MySQL / SQLite)
+- Docker (可选)
 
-- Python 3.8+
-- 数据库(PostgreSQL, MySQL, SQLite等)
-- 可选: Docker和Docker Compose(用于容器化部署)
+### 本地开发
 
-## 快速开始
-
-### 本地开发环境搭建
-
-1. **克隆项目模板**
-
+1. **克隆项目**
 ```bash
 git clone https://github.com/zhangjw777/fastAPI-simple-template.git
 cd fastAPI-simple-template
 ```
 
 2. **创建虚拟环境**
-
 ```bash
-# 使用venv
 python -m venv venv
-# Windows激活
+# Windows
 venv\Scripts\activate
-# Linux/macOS激活
+# Linux/macOS
 source venv/bin/activate
 ```
 
 3. **安装依赖**
-
 ```bash
 pip install -r requirements.txt
 ```
 
 4. **配置环境变量**
-
 ```bash
-# 复制环境变量示例文件
 cp env.example .env
-# 编辑.env文件设置数据库连接等环境变量
+# 编辑 .env 文件设置数据库连接等
 ```
 
-5. **初始化数据库**
+5. **运行应用**
+```bash
+# 应用启动时会自动初始化数据库表
+python run.py
+```
+
+6. **访问 API 文档**
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+- 健康检查: http://localhost:8000/api/health
+
+### Docker 部署
 
 ```bash
-# 创建初始迁移
-alembic revision --autogenerate -m "Initial migration"
+# 构建并启动
+docker-compose up -d --build
+
+# 查看日志
+docker-compose logs -f
+
+# 停止服务
+docker-compose down
+```
+
+## 📁 项目结构
+
+```
+FastAPI-simple-template/
+├── alembic/                    # 数据库迁移
+│   └── versions/               # 迁移版本
+├── app/                        # 应用主目录
+│   ├── api/v1/                 # API 路由（v1版本）
+│   │   ├── endpoints/          # 端点实现
+│   │   │   ├── auth.py         # 认证接口
+│   │   │   ├── health.py       # 健康检查
+│   │   │   ├── users.py        # 用户管理
+│   │   │   └── items.py        # 示例资源
+│   │   └── api.py              # 路由聚合
+│   ├── core/                   # 核心配置
+│   │   ├── application.py      # 应用工厂
+│   │   └── events.py           # 生命周期事件
+│   ├── db/                     # 数据库层
+│   │   ├── database.py         # 数据库连接（Core）
+│   │   ├── schema.sql          # SQL 表结构定义
+│   │   ├── init_db.py          # 初始化脚本
+│   │   ├── session.py          # 会话管理
+│   │   └── repositories/       # 数据访问层（原生 SQL）
+│   │       ├── user_repository.py
+│   │       └── item_repository.py
+│   ├── schemas/                # Pydantic 模型
+│   │   ├── response.py         # 📌 统一响应格式
+│   │   ├── user.py
+│   │   ├── item.py
+│   │   └── token.py
+│   ├── services/               # 业务逻辑层
+│   │   ├── user_service.py
+│   │   └── item_service.py
+│   ├── middlewares/            # 中间件
+│   │   └── exception_handler.py
+│   └── utils/                  # 工具函数
+│       ├── auth.py             # 认证工具
+│       ├── security.py         # 加密/JWT
+│       └── logger.py           # 日志配置
+├── config/                     # 配置文件
+│   └── settings.py             # 环境变量配置
+├── tests/                      # 测试目录
+├── main.py                     # 应用入口
+├── run.py                      # 运行脚本
+├── requirements.txt            # Python 依赖
+├── Dockerfile                  # Docker 构建
+├── docker-compose.yml          # Docker Compose
+└── REFACTORING.md              # 🔥 重构说明文档
+```
+
+## 🎯 核心概念
+
+### 统一响应格式
+
+所有 API 响应遵循统一结构：
+
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "操作成功",
+  "code": 200
+}
+```
+
+### 原生 SQL 查询示例
+
+```python
+# Repository 层
+async def get_by_email(self, email: str) -> Optional[dict]:
+    sql = """
+        SELECT id, email, username, is_active, role
+        FROM users
+        WHERE email = :email
+    """
+    result = await self.conn.execute(text(sql), {"email": email})
+    row = result.first()
+    return dict(row._mapping) if row else None
+```
+
+### 三层架构
+
+```
+API 层 (endpoints)
+    ↓ 调用
+Service 层 (业务逻辑)
+    ↓ 调用
+Repository 层 (数据访问)
+    ↓ 执行
+数据库 (原生 SQL)
+```
+
+## 🛠️ 开发指南
+
+### 添加新功能模块
+
+#### 1. 定义数据库表 (`app/db/schema.sql`)
+
+```sql
+CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price REAL NOT NULL,
+    stock INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+#### 2. 创建 Pydantic 模型 (`app/schemas/product.py`)
+
+```python
+from pydantic import BaseModel, Field
+from datetime import datetime
+
+class ProductCreate(BaseModel):
+    name: str = Field(..., description="产品名称")
+    description: str = None
+    price: float = Field(..., gt=0)
+    stock: int = Field(default=0, ge=0)
+
+class Product(BaseModel):
+    id: int
+    name: str
+    description: str | None
+    price: float
+    stock: int
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class ProductResponse(BaseModel):
+    id: int
+    name: str
+    price: float
+    stock: int
+    
+    class Config:
+        from_attributes = True
+```
+
+#### 3. 创建 Repository (`app/db/repositories/product_repository.py`)
+
+```python
+from sqlalchemy.ext.asyncio import AsyncConnection
+from sqlalchemy import text
+from typing import Optional
+
+class ProductRepository:
+    def __init__(self, conn: AsyncConnection):
+        self.conn = conn
+    
+    async def create(self, name: str, description: str, price: float, stock: int) -> dict:
+        sql = """
+            INSERT INTO products (name, description, price, stock)
+            VALUES (:name, :description, :price, :stock)
+            RETURNING id, name, description, price, stock, created_at, updated_at
+        """
+        result = await self.conn.execute(
+            text(sql),
+            {"name": name, "description": description, "price": price, "stock": stock}
+        )
+        return dict(result.first()._mapping)
+    
+    async def get_by_id(self, product_id: int) -> Optional[dict]:
+        sql = "SELECT * FROM products WHERE id = :id"
+        result = await self.conn.execute(text(sql), {"id": product_id})
+        row = result.first()
+        return dict(row._mapping) if row else None
+```
+
+#### 4. 创建 Service (`app/services/product_service.py`)
+
+```python
+from sqlalchemy.ext.asyncio import AsyncConnection
+from app.db.repositories.product_repository import ProductRepository
+from app.schemas.product import ProductCreate, Product
+
+class ProductService:
+    def __init__(self, conn: AsyncConnection):
+        self.repository = ProductRepository(conn)
+    
+    async def create_product(self, product_in: ProductCreate) -> Product:
+        product_data = await self.repository.create(
+            name=product_in.name,
+            description=product_in.description,
+            price=product_in.price,
+            stock=product_in.stock
+        )
+        return Product(**product_data)
+```
+
+#### 5. 创建 API 端点 (`app/api/v1/endpoints/products.py`)
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncConnection
+
+from app.db.session import get_db
+from app.schemas.product import ProductCreate, ProductResponse
+from app.schemas.response import ApiResponse, success_response
+from app.services.product_service import ProductService
+
+router = APIRouter()
+
+@router.post("", response_model=ApiResponse[ProductResponse])
+async def create_product(
+    product_in: ProductCreate,
+    conn: AsyncConnection = Depends(get_db)
+):
+    service = ProductService(conn)
+    product = await service.create_product(product_in)
+    return success_response(data=product, message="产品创建成功")
+```
+
+#### 6. 注册路由 (`app/api/v1/api.py`)
+
+```python
+from app.api.v1.endpoints import products
+
+api_router.include_router(
+    products.router, 
+    prefix="/products", 
+    tags=["products"]
+)
+```
+
+#### 7. 创建数据库迁移
+
+```bash
+# 生成迁移文件
+alembic revision --autogenerate -m "Add products table"
+
 # 应用迁移
 alembic upgrade head
 ```
 
-6. **运行应用**
+## 🔐 认证使用
+
+### 1. 注册用户（需要登录权限）
 
 ```bash
-# 使用uvicorn直接运行
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-# 或使用辅助脚本
+curl -X POST "http://localhost:8000/api/users" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -d '{
+    "email": "user@example.com",
+    "username": "testuser",
+    "password": "password123",
+    "role": "user"
+  }'
+```
+
+### 2. 登录获取 Token
+
+```bash
+curl -X POST "http://localhost:8000/api/auth/login" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "username=testuser&password=password123"
+```
+
+响应:
+```json
+{
+  "success": true,
+  "data": {
+    "access_token": "eyJhbGciOiJIUzI1NiIs...",
+    "token_type": "bearer"
+  },
+  "message": "登录成功",
+  "code": 200
+}
+```
+
+### 3. 使用 Token 访问受保护资源
+
+```bash
+curl -X GET "http://localhost:8000/api/users/1" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..."
+```
+
+## 🗄️ 数据库管理
+
+### 方式一：使用 Alembic（推荐用于生产环境）
+
+```bash
+# 创建迁移
+alembic revision --autogenerate -m "描述变更"
+
+# 应用迁移
+alembic upgrade head
+
+# 回滚一个版本
+alembic downgrade -1
+
+# 查看迁移历史
+alembic history
+
+# 查看当前版本
+alembic current
+```
+
+### 方式二：直接使用 schema.sql（开发环境快速迭代）
+
+```bash
+# 删除旧数据库
+rm app.db
+
+# 重启应用，自动创建表
 python run.py
 ```
 
-7. **访问API文档**
+## 📊 API 响应示例
 
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+### 成功响应
 
-### Docker部署
-
-1. **构建并启动容器**
-
-```bash
-docker-compose up -d --build
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "username": "testuser",
+    "email": "user@example.com",
+    "is_active": true,
+    "role": "user"
+  },
+  "message": "操作成功",
+  "code": 200
+}
 ```
 
-2. **运行数据库迁移**
+### 错误响应
 
-```bash
-docker-compose exec app alembic upgrade head
+```json
+{
+  "detail": "用户不存在"
+}
 ```
 
-3. **访问API**
-
-- API服务: http://localhost:8000
-- API文档: http://localhost:8000/docs
-
-## 开发指南
-
-### 添加新API端点
-
-1. **创建数据库模型** (如需要)
-
-在`app/db/models/`目录下创建新模型:
-
-```python
-# app/db/models/product.py
-from sqlalchemy import Column, Integer, String, Float
-from app.db.models.base import Base
-
-class Product(Base):
-    __tablename__ = "products"
-    
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    description = Column(String)
-    price = Column(Float)
-```
-
-2. **创建Pydantic模型**
-
-在`app/schemas/`目录创建对应的验证模型:
-
-```python
-# app/schemas/product.py
-from pydantic import BaseModel
-from typing import Optional
-
-class ProductBase(BaseModel):
-    name: str
-    description: Optional[str] = None
-    price: float
-
-class ProductCreate(ProductBase):
-    pass
-
-class ProductUpdate(ProductBase):
-    name: Optional[str] = None
-    price: Optional[float] = None
-
-class Product(ProductBase):
-    id: int
-    
-    class Config:
-        orm_mode = True
-```
-
-3. **创建仓库类**
-
-在`app/db/repositories/`目录添加仓库:
-
-```python
-# app/db/repositories/product_repository.py
-from app.db.repositories.base import BaseRepository
-from app.db.models.product import Product
-from sqlalchemy.orm import Session
-from typing import List, Optional
-
-class ProductRepository(BaseRepository):
-    def create(self, db: Session, name: str, description: str, price: float) -> Product:
-        product = Product(name=name, description=description, price=price)
-        db.add(product)
-        db.commit()
-        db.refresh(product)
-        return product
-        
-    def get_by_id(self, db: Session, product_id: int) -> Optional[Product]:
-        return db.query(Product).filter(Product.id == product_id).first()
-        
-    def get_all(self, db: Session, skip: int = 0, limit: int = 100) -> List[Product]:
-        return db.query(Product).offset(skip).limit(limit).all()
-```
-
-4. **创建服务类**
-
-在`app/services/`目录添加服务:
-
-```python
-# app/services/product_service.py
-from app.db.repositories.product_repository import ProductRepository
-from app.schemas.product import ProductCreate, ProductUpdate, Product
-from sqlalchemy.orm import Session
-from typing import List, Optional
-
-class ProductService:
-    def __init__(self):
-        self.repository = ProductRepository()
-    
-    def create_product(self, db: Session, product: ProductCreate) -> Product:
-        return self.repository.create(
-            db=db,
-            name=product.name,
-            description=product.description,
-            price=product.price
-        )
-    
-    def get_product(self, db: Session, product_id: int) -> Optional[Product]:
-        return self.repository.get_by_id(db=db, product_id=product_id)
-    
-    def get_products(self, db: Session, skip: int = 0, limit: int = 100) -> List[Product]:
-        return self.repository.get_all(db=db, skip=skip, limit=limit)
-```
-
-5. **创建API端点**
-
-在`app/api/v1/endpoints/`目录添加API端点:
-
-```python
-# app/api/v1/endpoints/products.py
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-from typing import List
-
-from app.db.session import get_db
-from app.schemas.product import Product, ProductCreate, ProductUpdate
-from app.services.product_service import ProductService
-
-router = APIRouter()
-service = ProductService()
-
-@router.post("/", response_model=Product, status_code=status.HTTP_201_CREATED)
-def create_product(
-    product: ProductCreate, 
-    db: Session = Depends(get_db)
-):
-    return service.create_product(db=db, product=product)
-
-@router.get("/{product_id}", response_model=Product)
-def get_product(
-    product_id: int, 
-    db: Session = Depends(get_db)
-):
-    product = service.get_product(db=db, product_id=product_id)
-    if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
-    return product
-
-@router.get("/", response_model=List[Product])
-def get_products(
-    skip: int = 0, 
-    limit: int = 100, 
-    db: Session = Depends(get_db)
-):
-    return service.get_products(db=db, skip=skip, limit=limit)
-```
-
-6. **注册路由**
-
-在`app/api/v1/api.py`文件中注册新路由:
-
-```python
-# app/api/v1/api.py
-from fastapi import APIRouter
-from app.api.v1.endpoints import users, items, auth, health, products
-
-api_router = APIRouter()
-api_router.include_router(health.router, prefix="/health", tags=["health"])
-api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
-api_router.include_router(users.router, prefix="/users", tags=["users"])
-api_router.include_router(items.router, prefix="/items", tags=["items"])
-api_router.include_router(products.router, prefix="/products", tags=["products"])
-```
-
-7. **创建数据库迁移**
-
-```bash
-alembic revision --autogenerate -m "Add product model"
-alembic upgrade head
-```
-
-### 添加身份认证
-
-本模板已集成JWT认证基础结构，使用方法:
-
-1. **获取令牌**:
-   - 使用`/api/v1/auth/login`端点登录并获取访问令牌
-```
-
-### 自定义中间件
-
-在`app/middlewares/`目录添加自定义中间件:
-
-```python
-# app/middlewares/timing.py
-import time
-from fastapi import Request
-from starlette.middleware.base import BaseHTTPMiddleware
-
-class TimingMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        start_time = time.time()
-        response = await call_next(request)
-        process_time = time.time() - start_time
-        response.headers["X-Process-Time"] = str(process_time)
-        return response
-```
-
-在`app/core/application.py`中注册中间件:
-
-```python
-from app.middlewares.timing import TimingMiddleware
-
-def create_application() -> FastAPI:
-    # ... 其他代码
-    application = FastAPI(...)
-    application.add_middleware(TimingMiddleware)
-    # ... 其他代码
-    return application
-```
-
-## 测试
-
-### 运行测试
+## 🧪 测试
 
 ```bash
 # 运行所有测试
 pytest
 
-# 运行特定测试
-pytest tests/test_api/test_health.py
-
-# 带详细输出
+# 详细输出
 pytest -v
+
+# 测试覆盖率
+pytest --cov=app
+
+# 测试特定文件
+pytest tests/test_api/test_health.py
 ```
 
-### 编写测试
+## 🔧 环境配置
 
-在`tests/`目录添加测试文件，示例:
+`.env` 文件配置示例:
 
-```python
-# tests/test_api/test_products.py
-from fastapi.testclient import TestClient
-import pytest
+```bash
+# 应用配置
+APP_NAME=FastAPI-Template
+APP_VERSION=0.1.0
+APP_ENV=development
+APP_DEBUG=True
+APP_HOST=0.0.0.0
+APP_PORT=8000
 
-def test_create_product(client, db_session):
-    response = client.post(
-        "/api/v1/products/",
-        json={"name": "Test Product", "description": "Test Description", "price": 99.99}
-    )
-    assert response.status_code == 201
-    data = response.json()
-    assert data["name"] == "Test Product"
-    assert data["price"] == 99.99
-    assert "id" in data
+# 数据库配置
+DATABASE_URL=sqlite:///./app.db
+# DATABASE_URL=postgresql+asyncpg://user:pass@localhost/dbname
+# DATABASE_URL=mysql+aiomysql://user:pass@localhost/dbname
+DATABASE_ECHO=True
+
+# JWT 配置
+JWT_SECRET_KEY=your-secret-key-here-change-in-production
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=1440
+
+# 日志配置
+LOG_LEVEL=INFO
 ```
 
-## 部署指南
+## 📝 最佳实践
+
+1. **参数化查询** - 始终使用参数化避免 SQL 注入
+   ```python
+   # ✅ 正确
+   sql = "SELECT * FROM users WHERE id = :id"
+   result = await conn.execute(text(sql), {"id": user_id})
+   
+   # ❌ 错误
+   sql = f"SELECT * FROM users WHERE id = {user_id}"
+   ```
+
+2. **统一响应** - 使用 `success_response()` 和 `error_response()`
+
+3. **异常处理** - Service 层抛出业务异常，API 层转换为 HTTP 异常
+
+4. **事务管理** - Repository 不处理事务，由 Service 层控制
+
+5. **日志记录** - 使用 Loguru 记录关键操作
+
+## 🚀 部署指南
 
 ### 生产环境配置
 
-1. **环境变量设置**
+```bash
+# 设置环境变量
+export APP_ENV=production
+export APP_DEBUG=False
+export DATABASE_URL=postgresql+asyncpg://user:pass@db/prod
+export JWT_SECRET_KEY=$(openssl rand -hex 32)
+```
 
-在生产环境中设置以下环境变量:
+### 使用 Gunicorn + Uvicorn
 
-- `ENVIRONMENT=production` - 设置环境为生产环境
-- `SECRET_KEY` - 安全密钥，用于JWT等
-- `DATABASE_URL` - 数据库连接URI
-- `LOG_LEVEL=INFO` - 生产环境日志级别
+```bash
+# 安装
+pip install gunicorn
 
-2. **HTTPS配置**
+# 运行
+gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker \
+  --bind 0.0.0.0:8000 \
+  --access-logfile - \
+  --error-logfile -
+```
 
-在生产环境中建议使用HTTPS，可通过反向代理(如Nginx)配置:
+### Nginx 反向代理
 
 ```nginx
 server {
     listen 80;
     server_name yourdomain.com;
-    return 301 https://$host$request_uri;
-}
-
-server {
-    listen 443 ssl;
-    server_name yourdomain.com;
-    
-    ssl_certificate /path/to/cert.pem;
-    ssl_certificate_key /path/to/key.pem;
     
     location / {
-        proxy_pass http://localhost:8000;
+        proxy_pass http://127.0.0.1:8000;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 }
 ```
 
-### 容器化部署
+## 🤝 贡献指南
 
-使用Docker Compose进行部署:
+欢迎提交 Issue 和 Pull Request！
 
-```bash
-# 生产环境启动
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-```
+## 📄 许可证
 
-创建`docker-compose.prod.yml`用于生产环境特定配置:
+MIT License
 
-```yaml
-version: '3'
-services:
-  app:
-    restart: always
-    environment:
-      - ENVIRONMENT=production
-      - LOG_LEVEL=INFO
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-```
+## 📚 更多资源
 
-## 常见问题与解决方案
+- [FastAPI 官方文档](https://fastapi.tiangolo.com/)
+- [SQLAlchemy Core 教程](https://docs.sqlalchemy.org/en/20/core/)
+- [Pydantic 文档](https://docs.pydantic.dev/)
+- [Alembic 文档](https://alembic.sqlalchemy.org/)
+- [重构说明文档](./REFACTORING.md)
 
-1. **数据库连接问题**
-   - 检查`.env`文件中的`DATABASE_URL`是否正确
-   - 确保数据库服务正在运行
-   - 验证数据库用户权限
+---
 
-2. **Alembic迁移错误**
-   - 确保模型已正确导入到`alembic/env.py`
-   - 尝试使用`alembic revision --autogenerate -m "message"`手动生成迁移
-
-3. **依赖安装问题**
-   - 尝试更新pip: `pip install --upgrade pip`
-   - 检查Python版本兼容性(需要3.8+)
-
-
+**维护者:** zhangjw777  
+**更新日期:** 2026-04-06  
+**版本:** 2.0 (重构版)

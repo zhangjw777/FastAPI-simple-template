@@ -23,16 +23,32 @@ class ItemUpdate(ItemBase):
     pass
 
 
-class ItemResponse(ItemBase):
-    """物品响应模型"""
+class Item(BaseModel):
+    """物品完整模型（用于 Service 层）"""
+    
+    id: int
+    title: str
+    description: Optional[str]
+    price: Optional[float]
+    owner_id: int
+    created_at: datetime
+    updated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+
+class ItemResponse(BaseModel):
+    """物品响应模型（API 返回）"""
     
     id: int = Field(..., description="物品ID")
     title: str = Field(..., description="物品标题")
+    description: Optional[str] = Field(None, description="物品描述")
+    price: Optional[float] = Field(None, description="物品价格")
     owner_id: int = Field(..., description="物品所有者ID")
     created_at: datetime = Field(..., description="创建时间")
     updated_at: datetime = Field(..., description="更新时间")
     
     class Config:
         """配置"""
-        
-        from_attributes = True 
+        from_attributes = True
